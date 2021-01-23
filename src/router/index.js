@@ -1,11 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-const Home = () => import('../views/home/Home')
-const Category = () => import('../views/category/Category')
-const Cart = () => import('../views/cart/Cart')
-const Profile = () => import('../views/profile/Profile')
-
+const Home = () => import()
 
 //1.安装插件
 Vue.use(VueRouter)
@@ -34,7 +30,7 @@ const routes = [
   {
     path: '/cart',
     name: 'Cart',
-    component: Cart
+    component: ShopCart
   }
 ]
 const router = new VueRouter({
