@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    <main-tab-bar/>
+    <router-view/>
+    <MainTabBar/>
   </div>
 </template>
 
 <script>
-import MainTabBar from 'components/content/mainTabbar/MainTabBar'
-import MainTabBar from "./components/content/mainTabbar/MainTabBar";
+
+  import MainTabBar from './components/content/maintabbar/MainTabBar.vue'
 
 export default {
   name: 'App',
   components: {
     MainTabBar
-
   }
 }
 </script>
