@@ -1,5 +1,7 @@
 <template>
-  <h2>分类</h2>
+  <ul>
+    <li v-for="(item,index) in 80" :key="index">{{item}}</li>
+  </ul>
 </template>
 
 
