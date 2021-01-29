@@ -1,5 +1,5 @@
 <template>
-    <h2>我的</h2>
+    <h2>腊哥</h2>
 </template>
 
 <script>
@@ -9,5 +9,7 @@
 </script>
 
 <style scoped>
-
+h2 {
+  color: #222222;
+}
 </style>

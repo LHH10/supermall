@@ -1,15 +1,21 @@
 <template>
   <div id="home" class="wrapper">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control :titles="['流行','新款','精选']"
+                 @tabClick="tabClick"
+                 ref="tabControl1"
+                 class="tab-control"
+                 v-show="isTabFixed"></tab-control>
 
     <scroll class="content" ref="scroll"
             :probe-type="3" @scroll="contentScroll"
             :pull-up-load="true" @pullingUp="loadMore">
-      <home-swiper :banners="banners" />
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <TabControl class="tab-control" :titles="['流行','新款','精选']"
-                  @tabClick="tabClick"></TabControl>
+      <tab-control :titles="['流行','新款','精选']"
+                  @tabClick="tabClick"
+                  ref="tabControl2"></tab-control>
       <goods-list :goods="showGoods"/>
     </scroll>
 
@@ -56,7 +62,10 @@
           'sell': {page: 0,list: []},
         },
         currentType: 'pop',
-        isShowBackTop: false
+        isShowBackTop: false,
+        tabOffsetTop: 0,
+        isTabFixed: false,
+        saveY:0
       }
     },
     computed: {
@@ -64,6 +73,18 @@
         return this.goods[this.currentType].list
       }
     },
+
+    //activated，deactivated，保存浏览状态
+    activated() {
+      this.$refs.scroll.scrollTo(0,this.saveY,0)
+      this.$refs.scroll.scroll.refresh()
+    },
+    //保存
+    deactivated() {
+      this.saveY = this.$refs.scroll.getScrollY()
+      // console.log(this.saveY);
+    },
+
     created() {
       //1.请求多个数据
       this.getHomeMultidata();
@@ -72,6 +93,7 @@
       this.getHomeGoods('pop');
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
+
     },
     methods: {
       //事件监听的方法
@@ -87,6 +109,10 @@
             this.currentType = 'sell'
             break
         }
+        //让分栏导航标题与内容保持一致
+        this.$refs.tabControl1.currentIndex = index;
+        this.$refs.tabControl2.currentIndex = index;
+
       },
       //返回顶部
       backClick() {
@@ -95,13 +121,21 @@
       //返回顶部标志的隐藏
       contentScroll(position) {
         // console.log(position);
+        //1.判断BackTop是否显示
         this.isShowBackTop = (-position.y) > 1000
+
+        //2.决定tabControl是否吸顶（position：fixed）
+        this.isTabFixed = (-position.y) > this.tabOffsetTop
       },
       //上拉加载更多
       loadMore() {
         this.getHomeGoods(this.currentType)
         //数据加载后进行刷新，方便better-scroll进行下拉，否则会出现下拉卡顿bug
         this.$refs.scroll.scroll.refresh()
+      },
+      //获取广告栏的状态，方便后面分栏导航的吸顶效果
+      swiperImageLoad() {
+       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
       },
       //网络请求相关的方法
       getHomeMultidata() {
@@ -127,23 +161,25 @@
   #home {
     height: 100vh;
     position: relative;
-    padding-top: 44px;
+    /*padding-top: 44px;*/
   }
   .home-nav {
     background-color: var(--color-tint);
     color: white;
     font-size: 20px;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: 9;
+
+    /*在使用浏览器原生滚动时，为了让导航不跟随一起滚动，如今使用了better-scroll用不上了*/
+    /*position: fixed;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    /*top: 0;*/
+    /*z-index: 9;*/
   }
   .tab-control {
-    position: sticky;
-    top: 44px;
+    position: relative;
     z-index: 9;
   }
+
   .content {
     overflow: hidden;
     position: absolute;
