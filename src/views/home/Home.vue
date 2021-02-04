@@ -8,8 +8,10 @@
                  v-show="isTabFixed"></tab-control>
 
     <scroll class="content" ref="scroll"
-            :probe-type="3" @scroll="contentScroll"
-            :pull-up-load="true" @pullingUp="loadMore">
+            @scroll="contentScroll"
+            :probe-type="3"
+            :pull-up-load="true"
+            @pullingUp="loadMore">
       <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
@@ -35,9 +37,9 @@
   import TabControl from "@/components/content/tabControl/TabControl";
   import GoodsList from "@/components/content/goods/GoodsList";
   import Scroll from '@/components/common/scroll/Scroll'
-  import BackTop from "@/components/content/backTop/BackTop";
 
   import {getHomeMultidata,getHomeGoods} from "@/network/home";
+  import {itemListenerMixin,backTopMixin} from "@/common/mixin";
 
   export default {
     name: "Home",
@@ -48,9 +50,11 @@
       FeatureView,
       TabControl,
       GoodsList,
-      Scroll,
-      BackTop
+      Scroll
     },
+    //混入方法
+    mixins: [itemListenerMixin,backTopMixin],
+
     data() {
       //保留请求过来的数据，使其不会执行过后就被销毁
       return {
@@ -76,13 +80,17 @@
 
     //activated，deactivated，保存浏览状态
     activated() {
+      // console.log(this.saveY);
       this.$refs.scroll.scrollTo(0,this.saveY,0)
-      this.$refs.scroll.scroll.refresh()
+      this.$refs.scroll.refresh()
     },
     //保存
     deactivated() {
       this.saveY = this.$refs.scroll.getScrollY()
       // console.log(this.saveY);
+
+      //取消全局事件的监听
+      this.$bus.$off('itemImgLoad',this.itemImgListener)
     },
 
     created() {
@@ -93,6 +101,13 @@
       this.getHomeGoods('pop');
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
+
+      // //3.监听item中图片加载完成
+      // this.$bus.$on('itemImageLoad',() => {
+      //   this.$refs.scroll.refresh()
+      // })
+    },
+    mounted() {
 
     },
     methods: {
@@ -114,10 +129,6 @@
         this.$refs.tabControl2.currentIndex = index;
 
       },
-      //返回顶部
-      backClick() {
-        this.$refs.scroll.scrollTo(0,0);
-      },
       //返回顶部标志的隐藏
       contentScroll(position) {
         // console.log(position);
@@ -131,7 +142,7 @@
       loadMore() {
         this.getHomeGoods(this.currentType)
         //数据加载后进行刷新，方便better-scroll进行下拉，否则会出现下拉卡顿bug
-        this.$refs.scroll.scroll.refresh()
+        this.$refs.scroll.refresh()
       },
       //获取广告栏的状态，方便后面分栏导航的吸顶效果
       swiperImageLoad() {
