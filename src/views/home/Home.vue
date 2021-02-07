@@ -113,6 +113,7 @@
     methods: {
       //事件监听的方法
       tabClick(index) {
+
         switch (index) {
           case 0:
             this.currentType = 'pop'

@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="showImage" alt="" @load="imgLoad">
+    <img v-lazy="showImage" alt="" @load="imgLoad" :key="showImage">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -23,7 +23,7 @@
       computed: {
         //做个判断，因为首页的商品列表和商品详情页面的推荐都使用了这个组件，而分别从服务器请求过来的数据标签名字都不同
         showImage() {
-          return this.goodsItem.image || this.goodsItem.show.img
+          return this.goodsItem.img || this.goodsItem.image || this.goodsItem.show.img
         }
       },
       methods: {
